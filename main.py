@@ -12,7 +12,7 @@ def generate_password():
     password_entry.delete(0, tk.END)
     password_entry.insert(0, password)
 
-def add_to_file():
+def save_data():
     website = website_entry.get()
     email_username = email_username_entry.get()
     password = password_entry.get()
@@ -44,6 +44,30 @@ def add_to_file():
     
     messagebox.showinfo("Success", "Data added successfully!")
 
+def search_data():
+    website = website_entry.get()
+    
+    if not website:
+        messagebox.showerror("Error", "Website field is required!")
+        return
+    
+    try:
+        with open("data.json", "r") as data_file:
+            data = json.load(data_file)
+    except FileNotFoundError:
+        messagebox.showerror("Error", "No data file found!")
+        return
+    
+    if website in data:
+        email_username = data[website]["email"]
+        password = data[website]["password"]
+        email_username_entry.delete(0, tk.END)
+        email_username_entry.insert(0, email_username)
+        password_entry.delete(0, tk.END)
+        password_entry.insert(0, password)
+    else:
+        messagebox.showerror("Error", f"No details for the {website} website exists!")
+
 window = tk.Tk()
 window.title("Password Manager")
 
@@ -59,6 +83,8 @@ website_label = tk.Label(window, text="Website:", bg='white')
 website_label.grid(row=1, column=0, sticky='e')
 website_entry = tk.Entry(window, **entry_style, width=35)
 website_entry.grid(row=1, column=1, pady=5)
+search_data_button = tk.Button(window, text="Search", **button_style, command=search_data)
+search_data_button.grid(row=1, column=2, padx=(5, 10), pady=5)
 
 email_username_label = tk.Label(window, text="Email/Username:", bg='white')
 email_username_label.grid(row=2, column=0, sticky='e')
@@ -73,7 +99,7 @@ password_entry.grid(row=3, column=1, pady=5)
 generate_password_button = tk.Button(window, text="Generate Password", **button_style, command=generate_password)
 generate_password_button.grid(row=3, column=2, padx=(5, 10), pady=5)
 
-add_button = tk.Button(window, text="Save", **button_style, width=35, command=add_to_file)
+add_button = tk.Button(window, text="Save", **button_style, width=35, command=save_data)
 add_button.grid(row=4, column=1, pady=(5, 10))
 
 window.configure(bg='white')
